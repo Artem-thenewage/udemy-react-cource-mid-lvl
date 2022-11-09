@@ -3,7 +3,6 @@ import MarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import './charList.scss';
-//import abyss from '../../resources/img/abyss.jpg';
 
 
 class CharList extends Component {
@@ -11,14 +10,13 @@ class CharList extends Component {
     state = {
         chars: [],
         loading: true,
-        error: false
+        error: false,
+        newItemLoading: false,
+        offset: 210,
+        charEnded: false
     }
 
     marvelService = new MarvelService()
-
-    onCharsLoaded = (chars) => {
-        this.setState({ chars, loading:false }) // такая запись аналогична записи {char: char}
-    }
 
     onError = () => {
         this.setState({ 
@@ -28,13 +26,40 @@ class CharList extends Component {
     }
 
     componentDidMount() {
-        this.marvelService
-            .getAllCharacters()
-            .then(this.onCharsLoaded)
-            .catch(this.onError)
+        this.onRequest()
     }
+
+    onRequest = (offset) => {
+        this.onCharsListLoading();
+        this.marvelService.getAllCharacters(offset)
+            .then(this.onCharListLoaded)
+            .catch(this.onError);
+    }
+
+    onCharsListLoading = () => {
+        this.setState({ 
+            newItemLoading: true
+        }) 
+    }
+
+    onCharListLoaded = (newChars) => {
+
+        let ended = false
+        if(newChars.length < 9) {
+            ended = true
+        }
+
+        this.setState(({offset, chars}) => ({
+            chars: [...chars, ...newChars],
+            loading: false,
+            newItemLoading: false,
+            offset: offset + 9,
+            charEnded: ended
+        }))
+    }
+
     render() {
-        const {chars, loading, error} = this.state
+        const {chars, loading, error, offset, newItemLoading, charEnded} = this.state
         const spinner = loading ? <Spinner/> : null
         const errorMessage = error ? <ErrorMessage/> : null
         
@@ -58,9 +83,13 @@ class CharList extends Component {
                 {spinner}
                 {errorMessage}
                 <ul className="char__grid">
-                {charLst}
+                    {charLst}
                 </ul>
-                <button className="button button__main button__long">
+                <button 
+                    className="button button__main button__long"
+                    disabled={newItemLoading}
+                    style={{'display': charEnded ? 'none' : 'block'}}
+                    onClick={()=> this.onRequest(offset)}>
                     <div className="inner">load more</div>
                 </button>
             </div>
