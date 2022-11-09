@@ -18,7 +18,6 @@ class CharList extends Component {
 
     onCharsLoaded = (chars) => {
         this.setState({ chars, loading:false }) // такая запись аналогична записи {char: char}
-        console.log(chars)
     }
 
     onError = () => {
@@ -45,7 +44,8 @@ class CharList extends Component {
                 imgFit = {objectFit: 'fill'}
             }
             return (
-                <li className="char__item char__item_selected" key={item.id}>
+                <li className="char__item char__item_selected" key={item.id}
+                    onClick={() => this.props.onCharSelected(item.id)}>
                     <img src={item.thumbnail} alt={item.name} style={imgFit}/>
                     <div className="char__name">{item.name}</div>
                 </li>)
