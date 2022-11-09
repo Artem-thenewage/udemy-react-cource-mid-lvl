@@ -37,6 +37,7 @@ class MarvelService {
         }
 
         return {
+            id: char.id,
             name: char.name,
             description: newDesc,
             thumbnail: char.thumbnail.path + '.' + char.thumbnail.extension,
