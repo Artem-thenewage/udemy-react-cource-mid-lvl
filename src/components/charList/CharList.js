@@ -17,17 +17,18 @@ const CharList = (props) => {
 
     const marvelService = new MarvelService()
 
-    useEffect( ()=> {
-        onRequest()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[])
-
     const onRequest = (offset) => {
         onCharsListLoading();
         marvelService.getAllCharacters(offset)
             .then(onCharListLoaded)
             .catch(onError);
     }
+
+    console.log('render')
+    useEffect(() => {
+        console.log('useEffect');
+        onRequest();
+    }, [])
 
     const onCharsListLoading = () => {
         setNewItemLoading(true)
@@ -53,7 +54,6 @@ const CharList = (props) => {
     }
 
     const itemRefs = useRef([]);
-    //console.log(itemRefs)
     
     const focusOnItem = (id) => {
         // Я реализовал вариант чуть сложнее, и с классом и с фокусом
@@ -67,7 +67,7 @@ const CharList = (props) => {
         itemRefs.current[id].classList.add('char__item_selected');
         itemRefs.current[id].focus();
     }
-
+    console.log(chars.length)
     let charLst = chars.map((item, i) => {
         let imgFit = {}
         if (item.thumbnail.indexOf('image_not_available') >= 0) {
