@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types'
-import MarvelService from '../../services/MarvelService';
+import useMarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import './charList.scss';
@@ -9,30 +9,21 @@ import './charList.scss';
 const CharList = (props) => {
 
     const [chars, setChars] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState(false)
     const [newItemLoading, setNewItemLoading] = useState(false)
     const [offset, setOffset] = useState(210)
     const [charEnded,setCharEnded] = useState(false)
 
-    const marvelService = new MarvelService()
+    const {loading, error, getAllCharacters} = useMarvelService()
 
     const onRequest = (offset) => {
-        onCharsListLoading();
-        marvelService.getAllCharacters(offset)
+        setNewItemLoading(true)
+        getAllCharacters(offset)
             .then(onCharListLoaded)
-            .catch(onError);
     }
 
-    console.log('render')
     useEffect(() => {
-        console.log('useEffect');
         onRequest();
     }, [])
-
-    const onCharsListLoading = () => {
-        setNewItemLoading(true)
-    }
 
     const onCharListLoaded = (newChars) => {
 
@@ -42,15 +33,9 @@ const CharList = (props) => {
         }
 
         setChars( chars => [...chars, ...newChars])
-        setLoading(false)
         setNewItemLoading(false)
         setOffset(offset => offset + 9)
         setCharEnded(ended)
-    }
-
-    const onError = () => {
-        setError(true)
-        setLoading(false)
     }
 
     const itemRefs = useRef([]);
@@ -67,7 +52,7 @@ const CharList = (props) => {
         itemRefs.current[id].classList.add('char__item_selected');
         itemRefs.current[id].focus();
     }
-    console.log(chars.length)
+
     let charLst = chars.map((item, i) => {
         let imgFit = {}
         if (item.thumbnail.indexOf('image_not_available') >= 0) {

@@ -1,54 +1,40 @@
 import { useState, useEffect } from 'react';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
-import MarvelService from '../../services/MarvelService';
+import useMarvelService from '../../services/MarvelService';
+
 import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
 
 
-function RandomChar() {
+const RandomChar = () => {
 
-    const [char, setChar] = useState({})
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState(false)
-
-    const marvelService = new MarvelService();
+    const [char, setChar] = useState(null);
+    const { loading, error, getCharacter, clearError } = useMarvelService();
 
     useEffect(() => {
-        updateChar()
-        const timerId = setInterval(updateChar, 600000)
-        return () => { // return  срабатывает когда происходит componentWillUnmount
-            clearInterval(timerId)
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[])
+        updateChar();
+        const timerId = setInterval(updateChar, 600000);
 
-    function updateChar() {
-        const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000)
-        marvelService
-            .getCharacter(id)
-            .then(onCharLoaded)
-            .catch(onError)
-    }
+        return () => { // return  срабатывает когда происходит componentWillUnmount
+            clearInterval(timerId);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     function onCharLoaded(char) {
-        setChar(char)
-        setLoading(false)
+        setChar(char);
     }
 
-    function onTryItClick() {
-        setLoading(true)
-        updateChar()
+    const updateChar = () => {
+        clearError();
+        const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
+        getCharacter(id).then(onCharLoaded);
     }
-
-    function onError() {
-        setError(true)
-        setLoading(false)
-    }
-
-    const errorMessage = error ? <ErrorMessage/> : null
-    const spinner = loading ? <Spinner/> : null
-    const content = !(loading || error) ? <View char={char}/> : null
+console.log(error)
+    const errorMessage = error ? <ErrorMessage /> : null;
+    const spinner = loading ? <Spinner /> : null;
+    const content = !(loading || error || !char) ? <View char={char} /> : null;
 
     return (
         <div className="randomchar">
@@ -63,7 +49,7 @@ function RandomChar() {
                 <p className="randomchar__title">
                     Or choose another one
                 </p>
-                <button className="button button__main" onClick={onTryItClick}>
+                <button className="button button__main" onClick={updateChar}>
                     <div className="inner">try it</div>
                 </button>
                 <img src={mjolnir} alt="mjolnir" className="randomchar__decoration" />
@@ -73,15 +59,15 @@ function RandomChar() {
 }
 
 function View({ char }) {
-    
+
     const { name, description, thumbnail, homepage, wiki } = char;
     let imgFit = {}
     if (thumbnail.indexOf('image_not_available') >= 0) {
-        imgFit = {objectFit: 'fill'}
+        imgFit = { objectFit: 'fill' };
     }
     return (
         <div className="randomchar__block">
-            <img src={thumbnail} alt="Random character" className="randomchar__img" style={imgFit}/>
+            <img src={thumbnail} alt="Random character" className="randomchar__img" style={imgFit} />
             <div className="randomchar__info">
                 <p className="randomchar__name">{name}</p>
                 <p className="randomchar__descr">
