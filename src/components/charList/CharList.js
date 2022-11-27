@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import PropTypes from 'prop-types'
 import useMarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
@@ -13,7 +14,7 @@ const CharList = (props) => {
     const [offset, setOffset] = useState(210)
     const [charEnded,setCharEnded] = useState(false)
 
-    const {loading, error, getAllCharacters} = useMarvelService()
+    const {error, getAllCharacters} = useMarvelService()
 
     const onRequest = (offset) => {
         setNewItemLoading(true)
@@ -23,6 +24,7 @@ const CharList = (props) => {
 
     useEffect(() => {
         onRequest();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const onCharListLoaded = (newChars) => {
@@ -58,39 +60,48 @@ const CharList = (props) => {
         if (item.thumbnail.indexOf('image_not_available') >= 0) {
             imgFit = {objectFit: 'fill'}
         }
+
         return (
-            <li className="char__item" 
-                key={i}
-                tabIndex={0}
-                ref={el => itemRefs.current[i] = el}
-                // el -  это ссылка на текущий ДОМ элемент, и его добавляем в массив 
-                // с индексом i
-                onClick={() => {
-                                props.onCharSelected(item.id)
-                                focusOnItem(i)
-                            } 
-                }
-                onKeyPress={(e) => {
-                    if (e.key === ' ' || e.key === "Enter") {
-                        props.onCharSelected(item.id);
-                        focusOnItem(i);
+            <CSSTransition
+                timeout={300}
+                classNames="alert">
+                <li className="char__item" 
+                    key={i}
+                    tabIndex={0}
+                    ref={el => itemRefs.current[i] = el}
+                    // el -  это ссылка на текущий ДОМ элемент, и его добавляем в массив 
+                    // с индексом i
+                    onClick={() => {
+                                    props.onCharSelected(item.id)
+                                    focusOnItem(i)
+                                } 
                     }
-                }}
-                >
-                <img src={item.thumbnail} alt={item.name} style={imgFit}/>
-                <div className="char__name">{item.name}</div>
-            </li>)
+                    onKeyPress={(e) => {
+                        if (e.key === ' ' || e.key === "Enter") {
+                            props.onCharSelected(item.id);
+                            focusOnItem(i);
+                        }
+                    }}
+                > 
+                    <img src={item.thumbnail} alt={item.name} style={imgFit}/>
+                    <div className="char__name">{item.name}</div>
+                </li>
+            </CSSTransition>
+            )
     })
 
-    const spinner = loading ? <Spinner/> : null
+    const spinner = newItemLoading ? <Spinner/> : null
     const errorMessage = error ? <ErrorMessage/> : null
 
+    
     return (
         <div className="char__list">
             {spinner}
             {errorMessage}
             <ul className="char__grid">
-                {charLst}
+                <TransitionGroup component={null}>
+                    {charLst}
+                </TransitionGroup>
             </ul>
             <button 
                 className="button button__main button__long"

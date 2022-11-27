@@ -31,7 +31,7 @@ const RandomChar = () => {
         const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
         getCharacter(id).then(onCharLoaded);
     }
-console.log(error)
+
     const errorMessage = error ? <ErrorMessage /> : null;
     const spinner = loading ? <Spinner /> : null;
     const content = !(loading || error || !char) ? <View char={char} /> : null;
