@@ -60,10 +60,10 @@ const CharList = (props) => {
         if (item.thumbnail.indexOf('image_not_available') >= 0) {
             imgFit = {objectFit: 'fill'}
         }
-
         return (
             <CSSTransition
                 timeout={300}
+                key={i}
                 classNames="alert">
                 <li className="char__item" 
                     key={i}
